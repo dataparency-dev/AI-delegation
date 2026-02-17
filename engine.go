@@ -15,7 +15,7 @@ import (
 	"time"
 
 	nc "github.com/dataparency-dev/natsclient" // The uploaded natsclient package
-	t "github.com/dataparency-dev/delegation/types"
+	t "github.com/dataparency-dev/AI-delegation/types"
 )
 
 const (
