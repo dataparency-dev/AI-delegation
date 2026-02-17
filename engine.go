@@ -14,8 +14,8 @@ import (
 	"net/http"
 	"time"
 
-	nc "github.com/yourorg/natsclient" // The uploaded natsclient package
-	t "github.com/yourorg/delegation/types"
+	nc "github.com/dataparency-dev/natsclient" // The uploaded natsclient package
+	t "github.com/dataparency-dev/delegation/types"
 )
 
 const (
