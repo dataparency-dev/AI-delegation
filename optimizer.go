@@ -9,7 +9,7 @@ import (
 	"math"
 	"sort"
 
-	t "github.com/yourorg/delegation/types"
+	t "github.com/dataparency-dev/AI-delegation/types"
 )
 
 // Weights for multi-objective optimization. Delegators can tune these
