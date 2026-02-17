@@ -3,23 +3,23 @@
 //
 // It scores and ranks bids using Pareto-optimality across cost, speed, trust,
 // and capability match, then helps the delegator select the best assignment.
-package market
+package optomizer
 
 import (
 	"math"
 	"sort"
-
+	
 	t "github.com/dataparency-dev/AI-delegation/types"
 )
 
 // Weights for multi-objective optimization. Delegators can tune these
 // based on task characteristics (Section 4.3).
 type OptimizationWeights struct {
-	Cost       float64 `json:"cost"`        // Lower is better
-	Speed      float64 `json:"speed"`       // Lower estimated time is better
-	Trust      float64 `json:"trust"`       // Higher trust score is better
-	Confidence float64 `json:"confidence"`  // Higher bid confidence is better
-	CapMatch   float64 `json:"cap_match"`   // Capability overlap ratio
+	Cost       float64 `json:"cost"`       // Lower is better
+	Speed      float64 `json:"speed"`      // Lower estimated time is better
+	Trust      float64 `json:"trust"`      // Higher trust score is better
+	Confidence float64 `json:"confidence"` // Higher bid confidence is better
+	CapMatch   float64 `json:"cap_match"`  // Capability overlap ratio
 }
 
 // DefaultWeights returns balanced weights.
@@ -80,7 +80,7 @@ func RankBids(
 	if len(bids) == 0 {
 		return nil
 	}
-
+	
 	// Find min/max for normalization
 	var minCost, maxCost float64 = math.MaxFloat64, 0
 	var minTime, maxTime int64 = math.MaxInt64, 0
@@ -98,7 +98,7 @@ func RankBids(
 			maxTime = b.EstimatedTime
 		}
 	}
-
+	
 	scored := make([]ScoredBid, len(bids))
 	for i, bid := range bids {
 		// Normalize cost (inverted — lower is better)
@@ -106,26 +106,26 @@ func RankBids(
 		if maxCost > minCost {
 			costScore = 1.0 - (bid.EstimatedCost-minCost)/(maxCost-minCost)
 		}
-
+		
 		// Normalize speed (inverted — faster is better)
 		speedScore := 1.0
 		if maxTime > minTime {
 			speedScore = 1.0 - float64(bid.EstimatedTime-minTime)/float64(maxTime-minTime)
 		}
-
+		
 		// Trust from pre-computed scores
 		trust := agentTrust[bid.AgentID]
-
+		
 		// Capability match ratio
 		capScore := capabilityMatchScore(requiredCaps, agentCaps[bid.AgentID])
-
+		
 		// Weighted sum
 		total := weights.Cost*costScore +
 			weights.Speed*speedScore +
 			weights.Trust*trust +
 			weights.Confidence*bid.Confidence +
 			weights.CapMatch*capScore
-
+		
 		scored[i] = ScoredBid{
 			Bid:             bid,
 			Score:           total,
@@ -136,12 +136,12 @@ func RankBids(
 			CapMatchScore:   capScore,
 		}
 	}
-
+	
 	// Sort descending by score
 	sort.Slice(scored, func(i, j int) bool {
 		return scored[i].Score > scored[j].Score
 	})
-
+	
 	return scored
 }
 

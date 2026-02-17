@@ -7,7 +7,7 @@ import (
 	"fmt"
 	"strings"
 	"time"
-
+	
 	t "github.com/dataparency-dev/AI-delegation/types"
 )
 
@@ -17,19 +17,19 @@ import (
 
 // DCT represents a Delegation Capability Token with restriction caveats.
 type DCT struct {
-	TokenID     string       `json:"token_id"`
-	GranterID   string       `json:"granter_id"`
-	BearerID    string       `json:"bearer_id"`
-	Resource    string       `json:"resource"`
-	Caveats     []Caveat     `json:"caveats"`     // Restriction chain
-	IssuedAt    time.Time    `json:"issued_at"`
-	ExpiresAt   time.Time    `json:"expires_at"`
-	Revoked     bool         `json:"revoked"`
+	TokenID   string    `json:"token_id"`
+	GranterID string    `json:"granter_id"`
+	BearerID  string    `json:"bearer_id"`
+	Resource  string    `json:"resource"`
+	Caveats   []Caveat  `json:"caveats"` // Restriction chain
+	IssuedAt  time.Time `json:"issued_at"`
+	ExpiresAt time.Time `json:"expires_at"`
+	Revoked   bool      `json:"revoked"`
 }
 
 // Caveat is a single restriction in the attenuation chain.
 type Caveat struct {
-	Type  string `json:"type"`  // "scope", "operation", "time", "budget"
+	Type  string `json:"type"` // "scope", "operation", "time", "budget"
 	Key   string `json:"key"`
 	Value string `json:"value"`
 }
@@ -58,12 +58,12 @@ func (d *DCT) Attenuate(newBearerID string, additionalCaveats ...Caveat) (*DCT, 
 	if time.Now().After(d.ExpiresAt) {
 		return nil, fmt.Errorf("cannot attenuate expired token %s", d.TokenID)
 	}
-
+	
 	// Child inherits all parent caveats plus new ones (monotonic restriction)
 	allCaveats := make([]Caveat, len(d.Caveats)+len(additionalCaveats))
 	copy(allCaveats, d.Caveats)
 	copy(allCaveats[len(d.Caveats):], additionalCaveats)
-
+	
 	child := MintDCT(d.BearerID, newBearerID, d.Resource, time.Until(d.ExpiresAt), allCaveats...)
 	return child, nil
 }
@@ -76,7 +76,7 @@ func (d *DCT) ValidateAccess(operation, scope string) error {
 	if time.Now().After(d.ExpiresAt) {
 		return fmt.Errorf("token expired")
 	}
-
+	
 	for _, c := range d.Caveats {
 		switch c.Type {
 		case "operation":
@@ -98,27 +98,27 @@ func (d *DCT) ValidateAccess(operation, scope string) error {
 type ThreatType string
 
 const (
-	ThreatDataExfiltration  ThreatType = "data_exfiltration"
-	ThreatDataPoisoning     ThreatType = "data_poisoning"
-	ThreatPromptInjection   ThreatType = "prompt_injection"
-	ThreatResourceExhaust   ThreatType = "resource_exhaustion"
+	ThreatDataExfiltration   ThreatType = "data_exfiltration"
+	ThreatDataPoisoning      ThreatType = "data_poisoning"
+	ThreatPromptInjection    ThreatType = "prompt_injection"
+	ThreatResourceExhaust    ThreatType = "resource_exhaustion"
 	ThreatUnauthorizedAccess ThreatType = "unauthorized_access"
-	ThreatBackdoor          ThreatType = "backdoor_implant"
-	ThreatSybilAttack       ThreatType = "sybil_attack"
-	ThreatCollusion         ThreatType = "collusion"
+	ThreatBackdoor           ThreatType = "backdoor_implant"
+	ThreatSybilAttack        ThreatType = "sybil_attack"
+	ThreatCollusion          ThreatType = "collusion"
 	ThreatReputationSabotage ThreatType = "reputation_sabotage"
 )
 
 // SecurityAlert represents a detected or suspected threat.
 type SecurityAlert struct {
-	AlertID     string     `json:"alert_id"`
-	TaskID      string     `json:"task_id"`
-	AgentID     string     `json:"agent_id"`
-	ThreatType  ThreatType `json:"threat_type"`
+	AlertID     string        `json:"alert_id"`
+	TaskID      string        `json:"task_id"`
+	AgentID     string        `json:"agent_id"`
+	ThreatType  ThreatType    `json:"threat_type"`
 	Severity    t.Criticality `json:"severity"`
-	Description string     `json:"description"`
-	Evidence    string     `json:"evidence"`
-	Timestamp   time.Time  `json:"timestamp"`
+	Description string        `json:"description"`
+	Evidence    string        `json:"evidence"`
+	Timestamp   time.Time     `json:"timestamp"`
 }
 
 // ─── Circuit Breaker ─────────────────────────────────────────────────────────
@@ -140,8 +140,8 @@ type CircuitBreaker struct {
 type CBState string
 
 const (
-	CBClosed   CBState = "closed"   // Normal operation
-	CBOpen     CBState = "open"     // Tripped — agent blocked
+	CBClosed   CBState = "closed"    // Normal operation
+	CBOpen     CBState = "open"      // Tripped — agent blocked
 	CBHalfOpen CBState = "half_open" // Testing if agent recovered
 )
 
@@ -205,22 +205,22 @@ func (cb *CircuitBreaker) IsAllowed() bool {
 // ScreenTask checks a task specification for red flags.
 func ScreenTask(task t.TaskSpec) []string {
 	var warnings []string
-
+	
 	// Flag tasks requesting excessive permissions
 	if len(task.Permissions) > 10 {
 		warnings = append(warnings, "excessive permissions requested")
 	}
-
+	
 	// Flag irreversible tasks with open-ended autonomy
 	if !task.Reversible && task.AutonomyLevel == t.AutonomyOpenEnd {
 		warnings = append(warnings, "irreversible task with open-ended autonomy — high risk")
 	}
-
+	
 	// Flag high-context tasks with low verifiability
 	if task.ContextSensitivity > 0.8 && task.Verifiability < 0.3 {
 		warnings = append(warnings, "high context sensitivity with low verifiability — potential exfiltration vector")
 	}
-
+	
 	// Flag tasks with unrealistically short deadlines for their complexity
 	if task.Deadline != nil && task.Complexity > 7 {
 		remaining := time.Until(*task.Deadline)
@@ -228,6 +228,6 @@ func ScreenTask(task t.TaskSpec) []string {
 			warnings = append(warnings, "deadline too tight for complexity — potential pressure tactic")
 		}
 	}
-
+	
 	return warnings
 }

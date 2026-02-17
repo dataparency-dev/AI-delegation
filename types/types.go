@@ -92,7 +92,7 @@ type TaskSpec struct {
 	Description  string      `json:"description"`
 	Status       TaskStatus  `json:"status"`
 	Criticality  Criticality `json:"criticality"`
-
+	
 	// Task Characteristics (Section 2.2)
 	Complexity         int     `json:"complexity"`          // 1-10 scale
 	Uncertainty        float64 `json:"uncertainty"`         // 0.0-1.0
@@ -102,18 +102,18 @@ type TaskSpec struct {
 	Verifiability      float64 `json:"verifiability"`       // 0.0-1.0 how easily verified
 	Subjectivity       float64 `json:"subjectivity"`        // 0.0-1.0 how subjective
 	ContextSensitivity float64 `json:"context_sensitivity"` // Privacy surface area
-
+	
 	// Decomposition
 	SubTaskIDs []string `json:"sub_task_ids,omitempty"`
 	IsLeaf     bool     `json:"is_leaf"` // True if no further decomposition
-
+	
 	// Execution constraints
-	RequiredCapabilities []string          `json:"required_capabilities"`
-	AutonomyLevel        AutonomyLevel     `json:"autonomy_level"`
-	MonitoringMode       MonitoringMode    `json:"monitoring_mode"`
-	Permissions          []Permission      `json:"permissions"`
+	RequiredCapabilities []string            `json:"required_capabilities"`
+	AutonomyLevel        AutonomyLevel       `json:"autonomy_level"`
+	MonitoringMode       MonitoringMode      `json:"monitoring_mode"`
+	Permissions          []Permission        `json:"permissions"`
 	VerificationPolicy   *VerificationPolicy `json:"verification_policy,omitempty"`
-
+	
 	// Timing
 	CreatedAt   time.Time  `json:"created_at"`
 	Deadline    *time.Time `json:"deadline,omitempty"`
@@ -124,18 +124,18 @@ type TaskSpec struct {
 type AutonomyLevel string
 
 const (
-	AutonomyAtomic   AutonomyLevel = "atomic"    // Strict spec, no sub-delegation
-	AutonomyBounded  AutonomyLevel = "bounded"   // Can sub-delegate within constraints
-	AutonomyOpenEnd  AutonomyLevel = "open_ended" // Full decomposition authority
+	AutonomyAtomic  AutonomyLevel = "atomic"     // Strict spec, no sub-delegation
+	AutonomyBounded AutonomyLevel = "bounded"    // Can sub-delegate within constraints
+	AutonomyOpenEnd AutonomyLevel = "open_ended" // Full decomposition authority
 )
 
 type MonitoringMode string
 
 const (
-	MonitorContinuous    MonitoringMode = "continuous"
-	MonitorPeriodic      MonitoringMode = "periodic"
+	MonitorContinuous     MonitoringMode = "continuous"
+	MonitorPeriodic       MonitoringMode = "periodic"
 	MonitorEventTriggered MonitoringMode = "event_triggered"
-	MonitorOutcomeOnly   MonitoringMode = "outcome_only"
+	MonitorOutcomeOnly    MonitoringMode = "outcome_only"
 )
 
 // ─── Contracts & Bidding (Section 4.2) ───────────────────────────────────────
@@ -155,17 +155,17 @@ type Bid struct {
 
 // DelegationContract formalizes the agreement between delegator and delegatee.
 type DelegationContract struct {
-	ContractID     string             `json:"contract_id"`
-	TaskID         string             `json:"task_id"`
-	DelegatorID    string             `json:"delegator_id"`
-	DelegateeID    string             `json:"delegatee_id"`
-	AcceptedBid    *Bid               `json:"accepted_bid"`
-	Terms          ContractTerms      `json:"terms"`
-	Status         ContractStatus     `json:"status"`
-	Permissions    []Permission       `json:"permissions"`
-	BackupAgentID  string             `json:"backup_agent_id,omitempty"`
-	CreatedAt      time.Time          `json:"created_at"`
-	SignedAt       *time.Time         `json:"signed_at,omitempty"`
+	ContractID    string         `json:"contract_id"`
+	TaskID        string         `json:"task_id"`
+	DelegatorID   string         `json:"delegator_id"`
+	DelegateeID   string         `json:"delegatee_id"`
+	AcceptedBid   *Bid           `json:"accepted_bid"`
+	Terms         ContractTerms  `json:"terms"`
+	Status        ContractStatus `json:"status"`
+	Permissions   []Permission   `json:"permissions"`
+	BackupAgentID string         `json:"backup_agent_id,omitempty"`
+	CreatedAt     time.Time      `json:"created_at"`
+	SignedAt      *time.Time     `json:"signed_at,omitempty"`
 }
 
 type ContractTerms struct {
@@ -174,8 +174,8 @@ type ContractTerms struct {
 	MonitoringMode    MonitoringMode `json:"monitoring_mode"`
 	ReportingInterval int64          `json:"reporting_interval"` // Seconds between status reports
 	EscrowAmount      float64        `json:"escrow_amount"`
-	PenaltyRate       float64        `json:"penalty_rate"` // Per-unit penalty for SLA breach
-	DisputePeriod     int64          `json:"dispute_period"` // Seconds after completion
+	PenaltyRate       float64        `json:"penalty_rate"`      // Per-unit penalty for SLA breach
+	DisputePeriod     int64          `json:"dispute_period"`    // Seconds after completion
 	VerificationMode  string         `json:"verification_mode"` // "direct", "third_party", "consensus"
 }
 
@@ -193,17 +193,17 @@ const (
 
 // Permission implements privilege attenuation — each sub-delegation narrows scope.
 type Permission struct {
-	Resource   string   `json:"resource"`   // What resource (API, dataset, tool)
-	Operations []string `json:"operations"` // Allowed ops: read, write, execute
-	Scope      string   `json:"scope"`      // Narrowing constraint
+	Resource   string     `json:"resource"`   // What resource (API, dataset, tool)
+	Operations []string   `json:"operations"` // Allowed ops: read, write, execute
+	Scope      string     `json:"scope"`      // Narrowing constraint
 	ExpiresAt  *time.Time `json:"expires_at,omitempty"`
-	GrantedBy  string   `json:"granted_by"` // Agent who granted this
+	GrantedBy  string     `json:"granted_by"` // Agent who granted this
 }
 
 // ─── Verification (Section 4.8) ──────────────────────────────────────────────
 
 type VerificationPolicy struct {
-	Mode      string               `json:"mode"` // "strict", "standard", "optimistic"
+	Mode      string                 `json:"mode"` // "strict", "standard", "optimistic"
 	Artifacts []VerificationArtifact `json:"artifacts"`
 }
 
@@ -227,16 +227,16 @@ type VerificationResult struct {
 type MonitorEventType string
 
 const (
-	EventTaskStarted      MonitorEventType = "TASK_STARTED"
-	EventCheckpoint       MonitorEventType = "CHECKPOINT_REACHED"
-	EventResourceWarning  MonitorEventType = "RESOURCE_WARNING"
-	EventProgressUpdate   MonitorEventType = "PROGRESS_UPDATE"
-	EventTaskCompleted    MonitorEventType = "TASK_COMPLETED"
-	EventTaskFailed       MonitorEventType = "TASK_FAILED"
-	EventPerformanceDrop  MonitorEventType = "PERFORMANCE_DEGRADATION"
-	EventBudgetOverrun    MonitorEventType = "BUDGET_OVERRUN"
-	EventSecurityAlert    MonitorEventType = "SECURITY_ALERT"
-	EventAgentUnresp      MonitorEventType = "AGENT_UNRESPONSIVE"
+	EventTaskStarted     MonitorEventType = "TASK_STARTED"
+	EventCheckpoint      MonitorEventType = "CHECKPOINT_REACHED"
+	EventResourceWarning MonitorEventType = "RESOURCE_WARNING"
+	EventProgressUpdate  MonitorEventType = "PROGRESS_UPDATE"
+	EventTaskCompleted   MonitorEventType = "TASK_COMPLETED"
+	EventTaskFailed      MonitorEventType = "TASK_FAILED"
+	EventPerformanceDrop MonitorEventType = "PERFORMANCE_DEGRADATION"
+	EventBudgetOverrun   MonitorEventType = "BUDGET_OVERRUN"
+	EventSecurityAlert   MonitorEventType = "SECURITY_ALERT"
+	EventAgentUnresp     MonitorEventType = "AGENT_UNRESPONSIVE"
 )
 
 type MonitorEvent struct {
