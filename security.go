@@ -8,7 +8,7 @@ import (
 	"strings"
 	"time"
 
-	t "github.com/yourorg/delegation/types"
+	t "github.com/dataparency-dev/AI-delegation/types"
 )
 
 // ─── Delegation Capability Token (DCT) ───────────────────────────────────────
