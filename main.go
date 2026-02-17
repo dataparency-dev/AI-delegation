@@ -23,10 +23,10 @@ import (
 	"log"
 	"time"
 
-	"github.com/yourorg/delegation/delegation"
-	"github.com/yourorg/delegation/market"
-	"github.com/yourorg/delegation/security"
-	t "github.com/yourorg/delegation/types"
+	"github.com/dataparency-dev/AI-delegation/delegation"
+	"github.com/dataparency-dev/AI-delegation/market"
+	"github.com/dataparency-dev/AI-delegation/security"
+	t "github.com/dataparency-dev/AI-delegation/types"
 )
 
 func main() {
